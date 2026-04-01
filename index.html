@@ -1,0 +1,674 @@
+﻿<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Персональный Link Tree">
+  <title>SHAWNiks | Link Tree</title>
+  <style>
+    :root {
+      --bg-top: #17191f;
+      --bg-mid: #22262e;
+      --bg-bottom: #2e3340;
+
+      --text-main: #f2f6ff;
+      --text-muted: #d7deea;
+
+      --card-bg: #e6e7ea;
+      --card-text: #4e5561;
+      --card-border: rgba(0, 0, 0, 0.11);
+      --card-shadow: rgba(0, 0, 0, 0.16);
+
+      --icon-bg: #171a22;
+      --clock-bg: rgba(22, 24, 29, 0.82);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      min-height: 100%;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Trebuchet MS", "Segoe UI", Tahoma, sans-serif;
+      color: var(--text-main);
+      background:
+        radial-gradient(1200px 520px at 18% 100%, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0) 68%),
+        radial-gradient(900px 500px at 90% 92%, rgba(255, 255, 255, 0.07) 0%, rgba(255, 255, 255, 0) 70%),
+        linear-gradient(180deg, var(--bg-top) 0%, var(--bg-mid) 46%, var(--bg-bottom) 100%);
+      background-attachment: fixed;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+
+    .page {
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+      gap: clamp(14px, 2.4vh, 20px);
+      padding-top: max(16px, env(safe-area-inset-top));
+      padding-right: max(10px, env(safe-area-inset-right));
+      padding-bottom: max(18px, env(safe-area-inset-bottom));
+      padding-left: max(10px, env(safe-area-inset-left));
+    }
+
+    .container {
+      width: min(620px, 100%);
+      margin: 0 auto;
+      animation: fade-up 0.45s ease both;
+    }
+
+    .profile {
+      text-align: center;
+      margin-bottom: 14px;
+    }
+
+    .avatar-wrap {
+      display: inline-flex;
+      padding: 3px;
+      border-radius: 50%;
+      border: 2px solid rgba(255, 255, 255, 0.66);
+      background: rgba(255, 255, 255, 0.12);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+    }
+
+    .avatar {
+      display: block;
+      width: clamp(92px, 18vw, 108px);
+      height: clamp(92px, 18vw, 108px);
+      border-radius: 50%;
+      object-fit: cover;
+      border: 1px solid rgba(255, 255, 255, 0.72);
+    }
+
+    .name {
+      margin: 12px 0 5px;
+      font-size: clamp(2rem, 5vw, 3rem);
+      font-weight: 800;
+      line-height: 1;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.42);
+    }
+
+    .bio {
+      margin: 0;
+      color: var(--text-muted);
+      font-size: clamp(1rem, 2.6vw, 1.2rem);
+      font-weight: 600;
+      text-shadow: 0 1px 6px rgba(0, 0, 0, 0.34);
+    }
+
+    .links {
+      width: 100%;
+    }
+
+    .link-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: grid;
+      gap: clamp(8px, 1.3vh, 10px);
+    }
+
+    .link-item {
+      animation: fade-up 0.45s ease both;
+    }
+
+    .link-item:nth-child(1) { animation-delay: 0.04s; }
+    .link-item:nth-child(2) { animation-delay: 0.08s; }
+    .link-item:nth-child(3) { animation-delay: 0.12s; }
+    .link-item:nth-child(4) { animation-delay: 0.16s; }
+    .link-item:nth-child(5) { animation-delay: 0.2s; }
+    .link-item:nth-child(6) { animation-delay: 0.24s; }
+    .link-item:nth-child(7) { animation-delay: 0.28s; }
+    .link-item:nth-child(8) { animation-delay: 0.32s; }
+
+    .link-button {
+      width: 100%;
+      min-height: clamp(44px, 5.2vh, 50px);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 0 12px;
+      border-radius: 10px;
+      border: 1px solid var(--card-border);
+      background: var(--card-bg);
+      color: var(--card-text);
+      text-decoration: none;
+      box-shadow: 0 2px 0 rgba(0, 0, 0, 0.08);
+      transition: transform 0.16s ease, box-shadow 0.16s ease, filter 0.16s ease;
+    }
+
+    .link-button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 5px 12px var(--card-shadow);
+      filter: brightness(1.01);
+    }
+
+    .link-button:active {
+      transform: translateY(0);
+    }
+
+    .link-left {
+      min-width: 0;
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .link-icon {
+      width: 24px;
+      height: 24px;
+      padding: 4px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 6px;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      background: var(--icon-bg);
+      flex: 0 0 auto;
+    }
+
+    .link-icon img {
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: contain;
+      filter: invert(1) brightness(1.16);
+    }
+
+    .link-icon.icon-custom {
+      padding: 2px;
+    }
+
+    .link-icon.icon-custom img {
+      filter: grayscale(1) contrast(1.18) brightness(1.3);
+      border-radius: 4px;
+    }
+
+    .link-text {
+      min-width: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-size: clamp(1rem, 2.2vw, 1.05rem);
+      font-weight: 500;
+    }
+
+    .link-arrow {
+      color: #0f1115;
+      font-size: 1.2rem;
+      line-height: 1;
+      flex: 0 0 auto;
+    }
+
+    .counter {
+      text-align: center;
+      color: #d4d9e1;
+      text-shadow: 0 1px 4px rgba(0, 0, 0, 0.45);
+    }
+
+    .counter-wrap {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      outline: none;
+    }
+
+    .counter img {
+      max-width: 100%;
+      height: auto;
+      vertical-align: middle;
+    }
+
+    .counter-hint {
+      position: absolute;
+      bottom: calc(100% + 10px);
+      left: 50%;
+      transform: translate(-50%, 6px);
+      min-width: 230px;
+      max-width: min(84vw, 320px);
+      padding: 9px 11px;
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      background: rgba(22, 24, 29, 0.92);
+      color: #e8edf6;
+      font-size: 0.83rem;
+      line-height: 1.25;
+      text-align: center;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.33);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.22s ease, transform 0.22s ease;
+    }
+
+    .counter-hint::after {
+      content: "";
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      border-width: 6px 6px 0 6px;
+      border-style: solid;
+      border-color: rgba(22, 24, 29, 0.92) transparent transparent transparent;
+    }
+
+    .counter-wrap:hover .counter-hint,
+    .counter-wrap:focus-within .counter-hint,
+    .counter-wrap.is-open .counter-hint {
+      opacity: 1;
+      transform: translate(-50%, 0);
+    }
+
+    .desktop-clock {
+      position: fixed;
+      z-index: 30;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      background: var(--clock-bg);
+      color: #e8edf6;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      user-select: none;
+      transition:
+        padding 0.38s cubic-bezier(0.22, 0.74, 0.32, 1),
+        gap 0.38s cubic-bezier(0.22, 0.74, 0.32, 1),
+        background-color 0.38s cubic-bezier(0.22, 0.74, 0.32, 1),
+        border-color 0.38s cubic-bezier(0.22, 0.74, 0.32, 1),
+        box-shadow 0.38s cubic-bezier(0.22, 0.74, 0.32, 1),
+        transform 0.38s cubic-bezier(0.22, 0.74, 0.32, 1);
+      transform-origin: right bottom;
+      will-change: transform;
+    }
+
+    .desktop-clock.pos-bottom-right {
+      right: max(12px, env(safe-area-inset-right));
+      bottom: max(12px, env(safe-area-inset-bottom));
+    }
+
+    .desktop-clock.pos-bottom-left {
+      left: max(12px, env(safe-area-inset-left));
+      bottom: max(12px, env(safe-area-inset-bottom));
+      transform-origin: left bottom;
+    }
+
+    .desktop-clock.pos-top-left {
+      left: max(12px, env(safe-area-inset-left));
+      top: max(12px, env(safe-area-inset-top));
+      transform-origin: left top;
+    }
+
+    .desktop-clock.pos-top-right {
+      right: max(12px, env(safe-area-inset-right));
+      top: max(12px, env(safe-area-inset-top));
+      transform-origin: right top;
+    }
+
+    .desktop-clock.is-idle {
+      padding: 6px 8px;
+      gap: 0;
+      background: rgba(22, 24, 29, 0.68);
+      border-color: rgba(255, 255, 255, 0.12);
+      box-shadow: 0 5px 12px rgba(0, 0, 0, 0.28);
+      transform: scale(0.93);
+    }
+
+    .clock-meta {
+      min-width: 84px;
+      display: grid;
+      gap: 1px;
+      text-align: right;
+      transition: transform 0.35s cubic-bezier(0.22, 0.74, 0.32, 1), opacity 0.35s ease;
+    }
+
+    .desktop-clock.is-idle .clock-meta {
+      transform: scale(0.96);
+      opacity: 0.95;
+    }
+
+    .desktop-clock.pos-bottom-left .clock-meta,
+    .desktop-clock.pos-top-left .clock-meta {
+      text-align: left;
+    }
+
+    .clock-time {
+      font-size: 1.06rem;
+      font-weight: 700;
+      line-height: 1.05;
+      letter-spacing: 0.01em;
+    }
+
+    .clock-date {
+      font-size: 0.85rem;
+      line-height: 1.1;
+      color: #c8d0df;
+    }
+
+    .clock-move {
+      width: 28px;
+      height: 28px;
+      margin: 0;
+      padding: 0;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      background: rgba(255, 255, 255, 0.08);
+      color: #f0f4fb;
+      font-size: 0.98rem;
+      line-height: 1;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      opacity: 1;
+      transition:
+        background-color 0.16s ease,
+        border-color 0.16s ease,
+        opacity 0.35s ease,
+        transform 0.24s ease,
+        width 0.35s cubic-bezier(0.22, 0.74, 0.32, 1),
+        margin-right 0.35s cubic-bezier(0.22, 0.74, 0.32, 1);
+    }
+
+    .desktop-clock.is-idle .clock-move {
+      opacity: 0;
+      transform: scale(0.72);
+      width: 0;
+      margin-right: -2px;
+      border-color: transparent;
+    }
+
+    .desktop-clock.is-idle:hover .clock-move,
+    .desktop-clock.is-idle:focus-within .clock-move {
+      opacity: 1;
+      transform: scale(1);
+      width: 28px;
+      margin-right: 0;
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .clock-move:hover {
+      background: rgba(255, 255, 255, 0.16);
+      border-color: rgba(255, 255, 255, 0.34);
+    }
+
+    .clock-move:active {
+      background: rgba(255, 255, 255, 0.12);
+    }
+
+    @keyframes fade-up {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @media (max-width: 800px) {
+      .container {
+        width: min(640px, 100%);
+      }
+
+      .counter-hint {
+        min-width: 200px;
+        font-size: 0.78rem;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .link-button {
+        min-height: 44px;
+      }
+
+      .link-text {
+        font-size: 1rem;
+      }
+
+      .desktop-clock {
+        padding: 7px 9px;
+      }
+
+      .clock-time {
+        font-size: 1rem;
+      }
+
+      .clock-date {
+        font-size: 0.8rem;
+      }
+    }
+
+    @media (pointer: coarse) {
+      .desktop-clock.is-idle {
+        padding: 7px 9px;
+        gap: 8px;
+        transform: none;
+      }
+
+      .desktop-clock.is-idle .clock-move {
+        opacity: 0.2;
+        transform: scale(0.96);
+        width: 28px;
+        margin-right: 0;
+        border-color: rgba(255, 255, 255, 0.2);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * {
+        animation: none !important;
+        transition: none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <div class="container">
+      <section class="profile" aria-label="Профиль">
+        <div class="avatar-wrap">
+          <img class="avatar" src="./assets/Avatar/avatar.jpg" alt="Аватар профиля" loading="eager" decoding="async">
+        </div>
+        <h1 class="name">SHAWNiks</h1>
+        <p class="bio">Алексей</p>
+      </section>
+
+      <nav class="links" aria-label="Социальные ссылки">
+        <ul class="link-list">
+          <li class="link-item">
+            <a class="link-button" href="https://github.com/SHAWNiksGame" target="_blank" rel="noopener noreferrer">
+              <span class="link-left">
+                <span class="link-icon" aria-hidden="true"><img src="./assets/icons/brands/github.svg" alt=""></span>
+                <span class="link-text">GitHub</span>
+              </span>
+              <span class="link-arrow" aria-hidden="true">↗</span>
+            </a>
+          </li>
+          <li class="link-item">
+            <a class="link-button" href="https://www.youtube.com/@SHAWNiks" target="_blank" rel="noopener noreferrer">
+              <span class="link-left">
+                <span class="link-icon" aria-hidden="true"><img src="./assets/icons/brands/youtube.svg" alt=""></span>
+                <span class="link-text">YouTube</span>
+              </span>
+              <span class="link-arrow" aria-hidden="true">↗</span>
+            </a>
+          </li>
+          <li class="link-item">
+            <a class="link-button" href="https://t.me/SHAWNiks" target="_blank" rel="noopener noreferrer">
+              <span class="link-left">
+                <span class="link-icon" aria-hidden="true"><img src="./assets/icons/brands/telegram.svg" alt=""></span>
+                <span class="link-text">Telegram</span>
+              </span>
+              <span class="link-arrow" aria-hidden="true">↗</span>
+            </a>
+          </li>
+          <li class="link-item">
+            <a class="link-button" href="https://vk.com/shawniks" target="_blank" rel="noopener noreferrer">
+              <span class="link-left">
+                <span class="link-icon" aria-hidden="true"><img src="./assets/icons/brands/vk.svg" alt=""></span>
+                <span class="link-text">VK</span>
+              </span>
+              <span class="link-arrow" aria-hidden="true">↗</span>
+            </a>
+          </li>
+          <li class="link-item">
+            <a class="link-button" href="https://steamcommunity.com/id/SHAWNiks/" target="_blank" rel="noopener noreferrer">
+              <span class="link-left">
+                <span class="link-icon" aria-hidden="true"><img src="./assets/icons/brands/steam.svg" alt=""></span>
+                <span class="link-text">Steam</span>
+              </span>
+              <span class="link-arrow" aria-hidden="true">↗</span>
+            </a>
+          </li>
+          <li class="link-item">
+            <a class="link-button" href="https://open.spotify.com/user/31ok4h6yj3rsflplmvfanddptjvy?si=5761c80c943a45c0" target="_blank" rel="noopener noreferrer">
+              <span class="link-left">
+                <span class="link-icon" aria-hidden="true"><img src="./assets/icons/brands/spotify.svg" alt=""></span>
+                <span class="link-text">Spotify</span>
+              </span>
+              <span class="link-arrow" aria-hidden="true">↗</span>
+            </a>
+          </li>
+          <li class="link-item">
+            <a class="link-button" href="https://site.yummyani.me/users/id238838" target="_blank" rel="noopener noreferrer">
+              <span class="link-left">
+                <span class="link-icon icon-custom" aria-hidden="true"><img src="./assets/icons/brands/yummyanime.svg" alt=""></span>
+                <span class="link-text">YummyAnime</span>
+              </span>
+              <span class="link-arrow" aria-hidden="true">↗</span>
+            </a>
+          </li>
+          <li class="link-item">
+            <a class="link-button" href="https://shikimori.io/SHAWNiks" target="_blank" rel="noopener noreferrer">
+              <span class="link-left">
+                <span class="link-icon icon-custom" aria-hidden="true"><img src="./assets/icons/brands/shikimori.svg" alt=""></span>
+                <span class="link-text">Shikimori</span>
+              </span>
+              <span class="link-arrow" aria-hidden="true">↗</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+
+    <footer class="counter" aria-label="Счетчик">
+      <div class="counter-wrap" id="counterWrap" tabindex="0" role="note" aria-label="Информация о счетчике посещений">
+        <img src="https://count.getloli.com/get/@alexkutischev_linktree_2026?theme=rule34&padding=5" alt="Счетчик">
+        <span class="counter-hint">Это счетчик всех посещений сайта за всё время.</span>
+      </div>
+    </footer>
+  </main>
+
+  <aside class="desktop-clock pos-bottom-right" id="desktopClock" aria-label="Текущее время и дата">
+    <button class="clock-move" id="clockMoveBtn" type="button" aria-label="Переместить время и дату" title="Переместить">⤢</button>
+    <div class="clock-meta">
+      <time class="clock-time" id="clockTime" datetime="">00:00</time>
+      <time class="clock-date" id="clockDate" datetime="">00.00.0000</time>
+    </div>
+  </aside>
+
+  <script>
+    (() => {
+      const clock = document.getElementById("desktopClock");
+      const moveBtn = document.getElementById("clockMoveBtn");
+      const timeEl = document.getElementById("clockTime");
+      const dateEl = document.getElementById("clockDate");
+      const counterWrap = document.getElementById("counterWrap");
+
+      if (!clock || !moveBtn || !timeEl || !dateEl) {
+        return;
+      }
+
+      const positions = ["pos-bottom-right", "pos-bottom-left", "pos-top-left", "pos-top-right"];
+      const storageKey = "linktree_clock_position";
+      const idleMs = 3500;
+
+      let index = 0;
+      let idleTimer = null;
+
+      const saved = localStorage.getItem(storageKey);
+      if (saved && positions.includes(saved)) {
+        index = positions.indexOf(saved);
+      }
+
+      const applyPosition = () => {
+        clock.classList.remove(...positions);
+        clock.classList.add(positions[index]);
+      };
+
+      const scheduleIdle = () => {
+        if (idleTimer) {
+          clearTimeout(idleTimer);
+        }
+
+        clock.classList.remove("is-idle");
+        idleTimer = setTimeout(() => {
+          clock.classList.add("is-idle");
+        }, idleMs);
+      };
+
+      const updateClock = () => {
+        const now = new Date();
+        const timeText = now.toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: false
+        });
+
+        const dateText = now.toLocaleDateString("ru-RU", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric"
+        });
+
+        timeEl.textContent = timeText;
+        dateEl.textContent = dateText;
+        timeEl.setAttribute("datetime", now.toISOString());
+        dateEl.setAttribute("datetime", now.toISOString().slice(0, 10));
+      };
+
+      moveBtn.addEventListener("click", () => {
+        index = (index + 1) % positions.length;
+        applyPosition();
+        localStorage.setItem(storageKey, positions[index]);
+        scheduleIdle();
+      });
+
+      ["pointerenter", "pointermove", "pointerdown", "focusin", "touchstart"].forEach((evt) => {
+        clock.addEventListener(evt, scheduleIdle, { passive: true });
+      });
+
+      if (counterWrap) {
+        counterWrap.addEventListener("click", () => {
+          counterWrap.classList.toggle("is-open");
+        });
+
+        document.addEventListener("click", (event) => {
+          if (!counterWrap.contains(event.target)) {
+            counterWrap.classList.remove("is-open");
+          }
+        });
+      }
+
+      applyPosition();
+      updateClock();
+      scheduleIdle();
+      setInterval(updateClock, 1000);
+    })();
+  </script>
+</body>
+</html>
